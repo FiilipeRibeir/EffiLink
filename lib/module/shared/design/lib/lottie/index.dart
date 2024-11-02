@@ -1,0 +1,1 @@
+export 'arrow_lottie.dart';

@@ -1,5 +1,6 @@
-import 'package:saas_crm/index.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:saas_crm/index.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -10,11 +11,19 @@ class SplashPage extends StatefulWidget {
 
 class _SplashPageState extends State<SplashPage> {
   @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 3), () {
+      context.go(LoginRouter.root); 
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return const Scaffold(
       backgroundColor: lightBackground,
       body: Center(
-        child: Text('splash'),
+        child: CampingAnimation(),
       ),
     );
   }

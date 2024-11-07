@@ -9,6 +9,9 @@ class AppRouter {
       },
       routes: [
         LoginRouter.routes(),
+        CreateRouter.routes(),
+        HomeRouter.routes(),
+        OnboardingRouter.routes(),
         SplashRouter.routes(),
       ],
     );

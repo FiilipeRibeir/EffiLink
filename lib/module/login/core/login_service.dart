@@ -6,7 +6,7 @@ import 'package:saas_crm/index.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UserService {
-  final String apiUrl = 'http://192.168.1.2:8080';
+  final String apiUrl = Config.apiUrl;
   final SupabaseClient supabase = Supabase.instance.client;
 
   /// Cria um novo usuário com os dados fornecidos em `userData`.
@@ -54,8 +54,7 @@ class UserService {
   }
 
   Future<AuthResponse> googleSignIn() async {
-    const webClientId =
-        '705259620246-2q6g55criejhcba4m9fvpo1l2f1nm5ia.apps.googleusercontent.com';
+    const webClientId = Config.googleClientId;
     final GoogleSignIn googleSignIn = GoogleSignIn(serverClientId: webClientId);
 
     try {

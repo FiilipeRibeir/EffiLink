@@ -20,229 +20,245 @@ class OnboardingPageState extends State<OnboardingPage> {
   final TextEditingController _storeNameController = TextEditingController();
   final TextEditingController _tokenController = TextEditingController();
 
-  final UserService userService = UserService();
+  bool _passwordEmpty = false;
+  bool _confirmPasswordEmpty = false;
+  bool _storeNameEmpty = false;
+  bool _tokenEmpty = false;
 
+  final UserService userService = UserService();
   final user = Supabase.instance.client.auth.currentUser;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: Image.asset(
-          "assets/images/effilink.png",
-          width: 100,
-        ),
-        toolbarHeight: 90,
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        centerTitle: true,
+      resizeToAvoidBottomInset: true,
+      body: Stack(
+        children: [
+          // Background gradient
+          Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.blueAccent, Colors.white12],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+          ),
+          // Scrollable content
+          Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 27).add(
+                  EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom)),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 30),
+                  const Text(
+                    "Complete seu cadastro",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  _buildRoleDropdown(),
+                  const SizedBox(height: 20),
+                  if (_role != null) _buildPasswordFields(),
+                  const SizedBox(height: 20),
+                  if (_role == "Admin") _buildStoreField(),
+                  if (_role == "Gerente" || _role == "Funcionário")
+                    _buildTokenField(),
+                  const SizedBox(height: 20),
+                  if (_role != null) _buildCompleteRegistrationButton(),
+                  const SizedBox(height: 20),
+                  _buildCancelButton(context),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
-      body: Container(
-        width: MediaQuery.of(context).size.width,
-        padding: const EdgeInsets.all(27),
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Colors.blueAccent,
-              Colors.white12,
-            ],
+    );
+  }
+
+  /// Formulario do Role
+  Widget _buildRoleDropdown() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const Text("Escolha sua função", style: TextStyle(color: Colors.black)),
+        DropdownButton<String>(
+          value: _role,
+          hint: const Text("Selecione sua função"),
+          items: ["Admin", "Gerente", "Funcionário"]
+              .map((role) => DropdownMenuItem(
+                    value: role,
+                    child: Text(role),
+                  ))
+              .toList(),
+          onChanged: (value) {
+            setState(() {
+              _role = value;
+              _passwordEmpty = false;
+              _confirmPasswordEmpty = false;
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  /// Formulário da senha
+  Widget _buildPasswordFields() {
+    return Column(
+      children: [
+        CupertinoTextField(
+          controller: _passwordController,
+          placeholder: "Digite sua senha",
+          obscureText: true,
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            color: Colors.black12,
+            borderRadius: BorderRadius.circular(7),
+            border: Border.all(
+                color: _passwordEmpty ? Colors.red : Colors.transparent),
           ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(height: 30),
-            const Text(
-              "Complete seu cadastro",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                color: Colors.black,
-              ),
+        const SizedBox(height: 20),
+        CupertinoTextField(
+          controller: _confirmPasswordController,
+          placeholder: "Confirme sua senha",
+          obscureText: true,
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            color: Colors.black12,
+            borderRadius: BorderRadius.circular(7),
+            border: Border.all(
+              color: _confirmPasswordEmpty ? Colors.red : Colors.transparent,
             ),
-            const SizedBox(height: 30),
+          ),
+        ),
+      ],
+    );
+  }
 
-            // Campo para escolher o role
-            const Text("Escolha sua função",
-                style: TextStyle(color: Colors.black)),
-            DropdownButton<String>(
-              value: _role,
-              hint: const Text(
-                "Selecione sua função",
-              ),
-              items: ["Admin", "Gerente", "Funcionário"]
-                  .map((role) => DropdownMenuItem(
-                        value: role,
-                        child: Text(role),
-                      ))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  _role = value;
-                });
-              },
-            ),
-            const SizedBox(height: 20),
+  /// Formulário da loja
+  Widget _buildStoreField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Nome da Loja",
+          style: TextStyle(
+            color: Colors.black54,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 5),
+        CupertinoTextField(
+          controller: _storeNameController,
+          placeholder: "Digite o nome da loja",
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            color: Colors.black12,
+            borderRadius: BorderRadius.circular(7),
+            border: Border.all(
+                color: _storeNameEmpty ? Colors.red : Colors.transparent),
+          ),
+        ),
+      ],
+    );
+  }
 
-            // Campo de senha
-            CupertinoTextField(
-              controller: _passwordController,
-              placeholder: "Digite sua senha",
-              obscureText: true,
-              padding: const EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                color: Colors.black12,
-                borderRadius: BorderRadius.circular(7),
-              ),
+  /// Formulário do token
+  Widget _buildTokenField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Insira o token fornecido pelo Admin",
+          style: TextStyle(
+            color: Colors.black54,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 5),
+        CupertinoTextField(
+          controller: _tokenController,
+          placeholder: "Digite o token",
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            color: Colors.black12,
+            borderRadius: BorderRadius.circular(7),
+            border: Border.all(
+              color: _tokenEmpty ? Colors.red : Colors.transparent,
             ),
-            const SizedBox(height: 20),
+          ),
+        ),
+      ],
+    );
+  }
 
-            // Campo de confirmação de senha
-            CupertinoTextField(
-              controller: _confirmPasswordController,
-              placeholder: "Confirme sua senha",
-              obscureText: true,
-              padding: const EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                color: Colors.black12,
-                borderRadius: BorderRadius.circular(7),
-              ),
-            ),
-            const SizedBox(height: 20),
-            // Se for Admin, mostrar campo para criar loja
-            if (_role == "Admin") ...[
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Nome da Loja",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  const SizedBox(height: 5),
-                  CupertinoTextField(
-                    controller: _storeNameController,
-                    placeholder: "Digite o nome da loja",
-                    padding: const EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      color: Colors.black12,
-                      borderRadius: BorderRadius.circular(7),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              ),
-            ],
-            // Se for Gerente ou Funcionário, mostrar campo para inserir token
-            if (_role == "Gerente" || _role == "Funcionário") ...[
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Insira o token fornecido pelo Admin",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  const SizedBox(height: 5),
-                  CupertinoTextField(
-                    controller: _tokenController,
-                    placeholder: "Digite o token",
-                    padding: const EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      color: Colors.black12,
-                      borderRadius: BorderRadius.circular(7),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-            ],
-            // Botão para completar cadastro
-            SizedBox(
-              width: double.infinity,
-              child: CupertinoButton(
-                padding: const EdgeInsets.all(17),
-                color: Colors.greenAccent,
-                onPressed: _completeRegistration,
-                child: const Text(
-                  "Finalizar cadastro",
-                  style: TextStyle(
-                    color: Colors.black54,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: CupertinoButton(
-                padding: const EdgeInsets.all(17),
-                onPressed: () {
-                  context.go("/login");
-                },
-                child: const Text(
-                  "Cancelar",
-                  style: TextStyle(
-                    color: Colors.black54,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-          ],
+  /// Botão de Finalizar cadastro
+  Widget _buildCompleteRegistrationButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: CupertinoButton(
+        padding: const EdgeInsets.all(17),
+        color: Colors.greenAccent,
+        onPressed: _completeRegistration,
+        child: const Text(
+          "Finalizar cadastro",
+          style: TextStyle(
+            color: Colors.black54,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Botão de cancelar
+  Widget _buildCancelButton(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: CupertinoButton(
+        padding: const EdgeInsets.all(17),
+        onPressed: () {
+          context.go("/login");
+        },
+        child: const Text(
+          "Cancelar",
+          style: TextStyle(
+            color: Colors.black54,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );
   }
 
   void _completeRegistration() async {
-    try {
-      final fullName = user?.userMetadata?['full_name'] ?? 'Nome Desconhecido';
-      final email = user?.email ?? 'Email Desconhecido';
+    setState(() {
+      _passwordEmpty = _passwordController.text.isEmpty;
+      _confirmPasswordEmpty = _confirmPasswordController.text.isEmpty;
+      _storeNameEmpty = _role == "Admin" && _storeNameController.text.isEmpty;
+      _tokenEmpty = (_role == "Gerente" || _role == "Funcionário") &&
+          _tokenController.text.isEmpty;
+    });
 
-      if (_passwordController.text.isEmpty ||
-          _confirmPasswordController.text.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Preencha ambos os campos de senha')),
-        );
-        return;
-      }
-
-      // Se o role for Admin, cria uma loja e recebe o store_id
-      String? storeId;
-      if (_role == "Admin") {
-        final storeName = _storeNameController.text;
-        final store =
-            await userService.createStore(storeName); // Agora esperamos um Map
-        storeId = store['id']; // Aqui você recebe o ID da loja criada
-      }
-
-      // Verifique se o storeId está correto antes de criar o usuário
-      if (_role == "Admin" && storeId == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erro: O ID da loja não foi gerado')),
-        );
-        return;
-      }
-
-      // Criar o usuário no backend com o store_id
-      await userService.createUser({
-        'name': fullName,
-        'email': email,
-        'password': _passwordController.text,
-        'role': _role!,
-        'token': _tokenController.text, // Apenas se Gerente ou Funcionário
-        'store_id': storeId, // Envia o store_id, caso tenha sido criado
-      });
-
-      // Redirecionar para a tela principal
-      context.go(HomeRouter.root);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao completar cadastro: $e')),
-      );
+    if (_passwordEmpty ||
+        _confirmPasswordEmpty ||
+        (_role == "Admin" && _storeNameEmpty) ||
+        ((_role == "Gerente" || _role == "Funcionário") && _tokenEmpty)) {
+      showErrorDialog(context, 'Erro', 'Preencha todos os campos obrigatórios');
+      return;
     }
   }
 }

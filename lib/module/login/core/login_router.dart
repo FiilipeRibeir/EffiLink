@@ -22,24 +22,3 @@ class LoginRouter {
     );
   }
 }
-
-class CreateRouter {
-  static const root = '/create';
-
-  static GoRoute routes() {
-    return GoRoute(
-      path: root,
-      pageBuilder: (context, state) {
-        return CustomTransitionPage(
-          child: const CreatePage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(
-              opacity: animation,
-              child: child,
-            );
-          },
-        );
-      },
-    );
-  }
-}

@@ -78,18 +78,6 @@ class LoginPageState extends State<LoginPage> {
                   )
                 : GoogleSignInButton(onPressed: _handleGoogleSignIn),
             const SizedBox(height: 20),
-
-            // Botão temporário para ir para a página de Onboarding
-            ElevatedButton(
-              onPressed: () {
-                context.go('/onboarding');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text("Ir para Onboarding"),
-            ),
           ],
         ),
       ),
